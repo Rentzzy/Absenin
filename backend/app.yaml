@@ -1,0 +1,9 @@
+runtime: nodejs18
+service: absenin-backend
+env: standard
+handlers: 
+  - url: /
+    static_files: public/logo.html
+    upload: public/logo.html
+  - url: /.*
+    script: auto

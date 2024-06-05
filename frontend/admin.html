@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Data</title>
+    <!-- Menggunakan CDN Font Awesome -->
+    <!-- <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: #333;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar .top {
+            padding: 15px;
+            text-align: center;
+            background: #444;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px;
+            text-align: left;
+        }
+
+        .sidebar ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .sidebar ul li:hover {
+            background: #555;
+        }
+
+        main {
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+            height: 100vh;
+            /* Ensure the main takes full viewport height */
+            overflow-y: auto;
+            /* Enable scrolling if content overflows */
+        }
+
+        .table-container {
+            max-height: 400px;
+            /* Adjust the max height as needed */
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #ddd;
+        }
+    </style>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+
+</head>
+
+<body>
+    <main>
+        <input type="checkbox" id="check">
+        <label for="check">
+            <i class="fas fa-bars" id="btn"></i>
+            <i class="fa fa-arrow-right" id="open"></i>
+        </label>
+        <div class="sidebar">
+            <div class="top">
+                Absenin
+            </div>
+            <ul>
+                <li><a onclick="showKelas()" href="#"> Kelas</a></li>
+                <li><a onclick="showDosen()" href="#"> Dosen</a></li>
+                <li><a onclick="showMahasiswa()" href="#"> Mahasiswa</a></li>
+                <li><a onclick="showUser()" href="#"> User</a></li>
+                <li><a onclick="logout()" href="#"> Logout</a></li>
+            </ul>
+        </div>
+        <section id="content">
+            <!-- Konten utama akan dimuat di sini -->
+        </section>
+    </main>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = localStorage.getItem('user');
+            if (!user) {
+                location.replace('/login');
+            } else {
+                document.getElementById('user-nim').textContent = user;
+            }
+        });
+        // Function to show classes and the form to add a new class
+        function showKelas() {
+            fetch('https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/kelas')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const tableBody = document.getElementById('kelas-table-body');
+                        tableBody.innerHTML = ''; // Clear the table body
+                        const kelasList = data.data;
+        
+                        kelasList.forEach(kelas => {
+                            const mulai = kelas.Mulai ? kelas.Mulai.slice(0, 5) : '';
+                            const berakhir = kelas.Berakhir ? kelas.Berakhir.slice(0, 5) : '';
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${kelas.Id_kelas}</td>
+                                <td>${kelas.Matkul}</td>
+                                <td>${kelas.Dosen}</td>
+                                <td>${mulai} WIB</td>
+                                <td>${berakhir} WIB</td>
+                                <td><button onclick="editKelas('${kelas.Id_kelas}', '${kelas.Matkul}', '${kelas.Dosen}', '${mulai}', '${berakhir}')">Edit</button></td>
+                                <td><button onclick="deleteKelas('${kelas.Id_kelas}')">Delete</button></td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    } else {
+                        console.error('Gagal mendapatkan data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            document.getElementById('content').innerHTML = `
+                <h1>Presensi Mahasiswa</h1>
+                <table id="presensiTable">
+                    <thead>
+                        <tr>
+                            <th>Id Kelas</th>
+                            <th>Mata Kuliah</th>
+                            <th>Dosen</th>
+                            <th>Mulai</th>
+                            <th>Berakhir</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kelas-table-body">
+                    </tbody>
+                </table>
+                <button onclick="showAddKelasForm()">Add Class</button>
+                <div id="addEditKelasForm"></div>
+            `;
+        }
+        
+        function showAddKelasForm() {
+            document.getElementById('addEditKelasForm').innerHTML = `
+                <h2>Add Class</h2>
+                <form id="addKelasForm">
+                    <label>Id Kelas:</label>
+                    <input type="text" id="id_kelas" required><br>
+                    <label>Mata Kuliah:</label>
+                    <input type="text" id="matkul" required><br>
+                    <label>Dosen:</label>
+                    <input type="text" id="dosen" required><br>
+                    <label>Mulai:</label>
+                    <input type="time" id="mulai" required><br>
+                    <label>Berakhir:</label>
+                    <input type="time" id="berakhir" required><br>
+                    <button type="button" onclick="addKelas()">Add</button>
+                </form>
+            `;
+        }
+        
+        function addKelas() {
+            const id_kelas = document.getElementById('id_kelas').value;
+            const matkul = document.getElementById('matkul').value;
+            const dosen = document.getElementById('dosen').value;
+            const mulai = document.getElementById('mulai').value;
+            const berakhir = document.getElementById('berakhir').value;
+        
+            fetch('https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/kelas', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: id_kelas,
+                        Matkul: matkul,
+                        Dosen: dosen,
+                        Mulai: mulai,
+                        Berakhir: berakhir
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showKelas();
+                    } else {
+                        console.error('Gagal menambah data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        function editKelas(id, matkul, dosen, mulai, berakhir) {
+            document.getElementById('addEditKelasForm').innerHTML = `
+                <h2>Edit Class</h2>
+                <form id="editKelasForm">
+                    <label>Id Kelas:</label>
+                    <input type="text" id="id_kelas" value="${id}" disabled><br>
+                    <label>Mata Kuliah:</label>
+                    <input type="text" id="matkul" value="${matkul}" required><br>
+                    <label>Dosen:</label>
+                    <input type="text" id="dosen" value="${dosen}" required><br>
+                    <label>Mulai:</label>
+                    <input type="time" id="mulai" value="${mulai}" required><br>
+                    <label>Berakhir:</label>
+                    <input type="time" id="berakhir" value="${berakhir}" required><br>
+                    <button type="button" onclick="updateKelas('${id}')">Update</button>
+                </form>
+            `;
+        }
+        
+        function updateKelas(id) {
+            const matkul = document.getElementById('matkul').value;
+            const dosen = document.getElementById('dosen').value;
+            const mulai = document.getElementById('mulai').value;
+            const berakhir = document.getElementById('berakhir').value;
+        
+            fetch(`https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/kelas`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        Matkul: matkul,
+                        Dosen: dosen,
+                        Mulai: mulai,
+                        Berakhir: berakhir
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showKelas();
+                    } else {
+                        console.error('Gagal mengupdate data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        function deleteKelas(id) {
+            fetch(`https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/kelas`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: id
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showKelas();
+                    } else {
+                        console.error('Gagal menghapus data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+
+        // Similar functions for Mahasiswa, Dosen, and User
+
+        function showMahasiswa() {
+            fetch('https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/mahasiswa')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const tableBody = document.getElementById('mahasiswa-table-body');
+                        tableBody.innerHTML = ''; // Clear the table body
+                        const mahasiswalist = data.data;
+
+                        mahasiswalist.forEach(mahasiswa => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${mahasiswa.NIM}</td>
+                                <td>${mahasiswa.Nama}</td>
+                                <td>${mahasiswa.jurusan}</td>
+                                <td><button onclick="editMahasiswa('${mahasiswa.NIM}', '${mahasiswa.Nama}', '${mahasiswa.jurusan}')">Edit</button></td>
+                                <td><button onclick="deleteMahasiswa('${mahasiswa.NIM}')">Delete</button></td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    } else {
+                        console.error('Gagal mendapatkan data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            document.getElementById('content').innerHTML = `
+                <h1>Presensi Mahasiswa</h1>
+                <table id="presensiTable">
+                    <thead>
+                        <tr>
+                            <th>NIM</th>
+                            <th>Nama</th>
+                            <th>Jurusan</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mahasiswa-table-body">
+                    </tbody>
+                </table>
+                <button onclick="showAddMahasiswaForm()">Add Student</button>
+                <div id="addEditMahasiswaForm"></div>
+            `;
+        }
+
+        function showAddMahasiswaForm() {
+            document.getElementById('addEditMahasiswaForm').innerHTML = `
+                <h2>Add Student</h2>
+                <form id="addMahasiswaForm">
+                    <label>NIM:</label>
+                    <input type="text" id="nim" required><br>
+                    <label>Nama:</label>
+                    <input type="text" id="nama" required><br>
+                    <label>Jurusan:</label>
+                    <input type="text" id="jurusan" required><br>
+                    <button type="button" onclick="addMahasiswa()">Add</button>
+                </form>
+            `;
+        }
+
+        function addMahasiswa() {
+            const nim = document.getElementById('nim').value;
+            const nama = document.getElementById('nama').value;
+            const jurusan = document.getElementById('jurusan').value;
+
+            fetch('https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/mahasiswa', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        NIM: nim,
+                        Nama: nama,
+                        jurusan: jurusan
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMahasiswa();
+                    } else {
+                        console.error('Gagal menambah data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function editMahasiswa(nim, nama, jurusan) {
+            document.getElementById('addEditMahasiswaForm').innerHTML = `
+                <h2>Edit Student</h2>
+                <form id="editMahasiswaForm">
+                    <label>NIM:</label>
+                    <input type="text" id="nim" value="${nim}" disabled><br>
+                    <label>Nama:</label>
+                    <input type="text" id="nama" value="${nama}" required><br>
+                    <label>Jurusan:</label>
+                    <input type="text" id="jurusan" value="${jurusan}" required><br>
+                    <button type="button" onclick="updateMahasiswa('${nim}')">Update</button>
+                </form>
+            `;
+        }
+
+        function updateMahasiswa(nim) {
+            const nama = document.getElementById('nama').value;
+            const jurusan = document.getElementById('jurusan').value;
+
+            fetch(`https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/mahasiswa`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        NIM: nim,
+                        Nama: nama,
+                        jurusan: jurusan
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMahasiswa();
+                    } else {
+                        console.error('Gagal mengupdate data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function deleteMahasiswa(nim) {
+            fetch(`https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/mahasiswa`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        NIM: nim
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMahasiswa();
+                    } else {
+                        console.error('Gagal menghapus data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+
+        function showDosen() {
+            fetch('https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/dosen')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const tableBody = document.getElementById('dosen-table-body');
+                        tableBody.innerHTML = ''; // Clear the table body
+                        const dosenlist = data.data;
+        
+                        dosenlist.forEach(dosen => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${dosen.NPM}</td>
+                                <td>${dosen.Nama_dosen}</td>
+                                <td><button onclick="editDosen('${dosen.NPM}', '${dosen.Nama_dosen}')">Edit</button></td>
+                                <td><button onclick="deleteDosen('${dosen.NPM}')">Delete</button></td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    } else {
+                        console.error('Gagal mendapatkan data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            document.getElementById('content').innerHTML = `
+                <h1>Presensi Dosen</h1>
+                <table id="presensiTable">
+                    <thead>
+                        <tr>
+                            <th>NPM</th>
+                            <th>Nama Dosen</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dosen-table-body">
+                    </tbody>
+                </table>
+                <button onclick="showAddDosenForm()">Add Lecturer</button>
+                <div id="addEditDosenForm"></div>
+            `;
+        }
+        
+        function showAddDosenForm() {
+            document.getElementById('addEditDosenForm').innerHTML = `
+                <h2>Add Lecturer</h2>
+                <form id="addDosenForm">
+                    <label>NPM:</label>
+                    <input type="text" id="npm" required><br>
+                    <label>Nama Dosen:</label>
+                    <input type="text" id="nama_dosen" required><br>
+                    <button type="button" onclick="addDosen()">Add</button>
+                </form>
+            `;
+        }
+        
+        function addDosen() {
+            const npm = document.getElementById('npm').value;
+            const nama_dosen = document.getElementById('nama_dosen').value;
+        
+            fetch('https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/dosen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        NPM: npm,
+                        Nama: nama_dosen
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showDosen();
+                    } else {
+                        console.error('Gagal menambah data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        function editDosen(npm, nama_dosen) {
+            document.getElementById('addEditDosenForm').innerHTML = `
+                <h2>Edit Lecturer</h2>
+                <form id="editDosenForm">
+                    <label>NPM:</label>
+                    <input type="text" id="npm" value="${npm}" disabled><br>
+                    <label>Nama Dosen:</label>
+                    <input type="text" id="nama_dosen" value="${nama_dosen}" required><br>
+                    <button type="button" onclick="updateDosen('${npm}')">Update</button>
+                </form>
+            `;
+        }
+        
+        function updateDosen(npm) {
+            const nama_dosen = document.getElementById('nama_dosen').value;
+        
+            fetch(`https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/dosen`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        NPM: npm,
+                        Nama: nama_dosen
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showDosen();
+                    } else {
+                        console.error('Gagal mengupdate data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        function deleteDosen(npm) {
+            fetch(`https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/dosen`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        NPM: npm
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showDosen();
+                    } else {
+                        console.error('Gagal menghapus data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        
+
+        function showUser() {
+            fetch('https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/users')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const tableBody = document.getElementById('user-table-body');
+                        tableBody.innerHTML = '';
+                        const userlist = data.data;
+        
+                        userlist.forEach(user => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${user.id}</td>
+                                <td>${user.username}</td>
+                                <td>${user.password}</td>
+                                <td>${user.role}</td>
+                                <td><button onclick="editUser('${user.id}', '${user.username}', '${user.password}', '${user.role}')">Edit</button></td>
+                                <td><button onclick="deleteUser('${user.id}')">Delete</button></td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    } else {
+                        console.error('Gagal mendapatkan data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            document.getElementById('content').innerHTML = `
+                <h1>Presensi User</h1>
+                <table id="presensiTable">
+                    <thead>
+                        <tr>
+                            <th>id</th>
+                            <th>Username</th>
+                            <th>Password</th>
+                            <th>Role</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-table-body">
+                    </tbody>
+                </table>
+                <button onclick="showAddUserForm()">Add User</button>
+                <div id="addEditUserForm"></div>
+            `;
+        }
+        
+        function showAddUserForm() {
+            document.getElementById('addEditUserForm').innerHTML = `
+                <h2>Add User</h2>
+                <form id="addUserForm">
+                    <label>id:</label>
+                    <input type="text" id="id" disabled><br>
+                    <label>Username:</label>
+                    <input type="text" id="username" required><br>
+                    <label>Password:</label>
+                    <input type="password" id="password" required><br>
+                    <label>Role:</label>
+                    <input type="text" id="role" required><br>
+                    <button type="button" onclick="addUser()">Add</button>
+                </form>
+            `;
+        }
+        
+        function addUser() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+        
+            fetch('https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                        role: role
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showUser();
+                    } else {
+                        console.error('Gagal menambah data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        function editUser(id, username, password, role) {
+            document.getElementById('addEditUserForm').innerHTML = `
+                <h2>Edit User</h2>
+                <form id="editUserForm">
+                    <label>id:</label>
+                    <input type="text" id="id" value="${id}" disabled><br>
+                    <label>Username:</label>
+                    <input type="text" id="username" value="${username}" required><br>
+                    <label>Password:</label>
+                    <input type="text" id="password" value="${password}" required><br>
+                    <label>Role:</label>
+                    <input type="text" id="role" value="${role}" required><br>
+                    <button type="button" onclick="updateUser('${id}')">Update</button>
+                </form>
+            `;
+        }
+        
+        function updateUser(id) {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+        
+            fetch(`https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/users`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        username: username,
+                        password: password,
+                        role: role
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showUser();
+                    } else {
+                        console.error('Gagal mengupdate data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        function deleteUser(id) {
+            fetch(`https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/users`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: id
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showUser();
+                    } else {
+                        console.error('Gagal menghapus data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }        
+
+        function logout() {
+            localStorage.removeItem('user');
+            location.replace('/login');
+            alert('Logout successful');
+        }
+    </script>
+
+</body>
+
+</html>

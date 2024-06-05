@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dosen</title>
+    <!-- Menggunakan CDN Font Awesome -->
+    <!-- <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1rem;
+            color: #212529;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        main {
+            display: flex;
+            flex-wrap: nowrap;
+            height: -webkit-fill-availeble;
+            max-height: 100vh;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            text-decoration: none;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0px;
+            width: 250px;
+            height: 100%;
+            background: #74bdcb;
+            transition: all 0.5s ease;
+        }
+
+        .sidebar .top {
+            font-size: 22px;
+            color: #fff;
+            text-align: center;
+            line-height: 70px;
+            background-image: linear-gradient(to right, #3ABEF9, #A7E6FF);
+        }
+
+        .sidebar ul a {
+            display: block;
+            height: 100%;
+            width: 100%;
+            line-height: 65px;
+            font-size: 20px;
+            color: #fff;
+            padding-left: 40px;
+            box-sizing: border-box;
+            border-top: 1px solid rgba(6, 255, 251, 0.1);
+            border-bottom: 1px solid rgba(125, 134, 146, 0.302);
+            transition: all 0.5s ease;
+        }
+
+        ul li:hover a {
+            padding-left: 100px;
+            background: #efe7bc;
+            color: rgb(0, 0, 0);
+        }
+
+        .sidebar ul a i {
+            margin-right: 16px;
+        }
+
+
+        #check {
+            display: none;
+        }
+
+        label #btn {
+            position: absolute;
+            cursor: pointer;
+            background: #ffffff;
+            border-radius: 3px;
+        }
+
+        label #open {
+            position: absolute;
+            cursor: pointer;
+            background: #050C9C;
+            border-radius: 1px;
+            font-size: 30px;
+        }
+
+        label #open {
+            left: 0;
+            top: 10;
+            font-size: 30px;
+            color: rgb(255, 255, 255);
+            padding: 6px 12px;
+            transition: all 0.5s ease;
+        }
+
+        label #btn {
+            z-index: 1111;
+            left: 195px;
+            top: 25px;
+            font-size: 20px;
+            color: #000000;
+            padding: 4px 9px;
+            transition: all 0.5s ease;
+        }
+
+        #check:checked~.sidebar {
+            left: -250px;
+        }
+
+        #check:checked~label #open {
+            left: 30px;
+            font-size: 20px;
+        }
+
+        #check:checked~label #btn {
+            left: -195px;
+        }
+
+        section {
+            background: #ffffff;
+            background-position: center;
+            background-size: cover;
+            height: 100vh;
+            width: 100%;
+        }
+
+        section h1 {
+            text-align: center;
+            padding-top: 200px;
+            font-size: 60px;
+            color: #004369;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: #333;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar .top {
+            padding: 15px;
+            text-align: center;
+            background: #444;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px;
+            text-align: left;
+        }
+
+        .sidebar ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .sidebar ul li:hover {
+            background: #555;
+        }
+
+        main {
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <input type="checkbox" id="check">
+        <label for="check">
+            <i class="fas fa-bars" id="btn"></i>
+            <i class="fa fa-arrow-right" id="open"></i>
+        </label>
+        <div class="sidebar">
+            <div class="top">
+                Absenin
+            </div>
+            <ul>
+                <li><a onclick="showHome()" href="#"> Dashboard</a></li>
+                <li><a onclick="showPresensi()" href="#"> Presence</a></li>
+                <li><a onclick="logout()" href="#"> Logout</a></li>
+            </ul>
+        </div>
+        <section id="content">
+            <h1>Dashboard</h1>
+            <p>Selamat datang di sistem presensi mahasiswa.</p>
+            <p>User: <span id="user-npm"></span></p>
+            <!-- <select id="kelasCombobox"></select> 
+            -->
+        </section>
+    </main>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = localStorage.getItem('user');
+            if (!user) {
+                location.replace('/login');
+            } else {
+                document.getElementById('user-npm').textContent = user;
+            }
+        });
+        
+        function showHome() {
+            document.getElementById('content').innerHTML = `
+                <h1>Dashboard</h1>
+                <p>Selamat datang di sistem presensi mahasiswa.</p>
+                
+            `;
+        }
+
+        function showPresensi() {
+            document.getElementById('content').innerHTML = `
+                <h1>Presensi Mahasiswa</h1>
+                <select id="kelasCombobox"></select>
+                <table id="presensiTable">
+                    <thead>
+                        <tr>
+                            <th>NIM</th>
+                            <th>Kelas</th>
+                            <th>Hadir</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+                
+            `;
+            populateDropdown();
+
+            document.getElementById('kelasCombobox').addEventListener('change', function () {
+                let selectedClassId = this.value;
+                fetchPresensiData(selectedClassId);
+            });
+
+        }
+
+        function fetchPresensiData(classId) {
+            fetch(`https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/presensi-kelas`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        kelas: classId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    let tableBody = document.getElementById('presensiTable').querySelector('tbody');
+                    tableBody.innerHTML = ''; // Clear existing table rows
+                    data.data.forEach(item => {
+                        let row = document.createElement('tr');
+                        let nimCell = document.createElement('td');
+                        let kelasCell = document.createElement('td');
+                        let hadirCell = document.createElement('td');
+
+                        nimCell.textContent = item.NIM;
+                        kelasCell.textContent = item.Kelas;
+                        hadirCell.textContent = item.Hadir;
+
+                        row.appendChild(nimCell);
+                        row.appendChild(kelasCell);
+                        row.appendChild(hadirCell);
+
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching presensi data:', error));
+        }
+
+        function populateDropdown() {
+            fetch('https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/kelas-dosen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        npm: localStorage.getItem('user')
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    let dropdown = document.getElementById('kelasCombobox');
+                    data.data.forEach(item => {
+                        let option = document.createElement('option');
+                        option.value = item.Id_kelas;
+                        option.textContent = item.Matkul;
+                        dropdown.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            location.replace('/login');
+            alert('Logout successful');
+        }
+    </script>
+</body>
+
+</html>

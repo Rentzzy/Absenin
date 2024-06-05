@@ -1,0 +1,25 @@
+runtime: python39
+
+handlers:
+- url: /static
+  static_dir: .
+  
+- url: /
+  static_files: login.html
+  upload: login.html
+
+- url: /login
+  static_files: login.html
+  upload: login.html
+
+- url: /admin
+  static_files: admin.html
+  upload: admin.html
+
+- url: /dosen
+  static_files: dosen.html
+  upload: dosen.html
+
+- url: /mahasiswa
+  static_files: mahasiswa.html
+  upload: mahasiswa.html

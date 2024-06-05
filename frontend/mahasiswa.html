@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahasiswa</title>
+    <!-- <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- <link rel="stylesheet" href="style.css"> -->
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1rem;
+            color: #212529;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        main {
+            display: flex;
+            flex-wrap: nowrap;
+            height: -webkit-fill-availeble;
+            max-height: 100vh;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            text-decoration: none;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0px;
+            width: 250px;
+            height: 100%;
+            background: #74bdcb;
+            transition: all 0.5s ease;
+        }
+
+        .sidebar .top {
+            font-size: 22px;
+            color: #fff;
+            text-align: center;
+            line-height: 70px;
+            background-image: linear-gradient(to right, #3ABEF9, #A7E6FF);
+        }
+
+        .sidebar ul a {
+            display: block;
+            height: 100%;
+            width: 100%;
+            line-height: 65px;
+            font-size: 20px;
+            color: #fff;
+            padding-left: 40px;
+            box-sizing: border-box;
+            border-top: 1px solid rgba(6, 255, 251, 0.1);
+            border-bottom: 1px solid rgba(125, 134, 146, 0.302);
+            transition: all 0.5s ease;
+        }
+
+        ul li:hover a {
+            padding-left: 100px;
+            background: #efe7bc;
+            color: rgb(0, 0, 0);
+        }
+
+        .sidebar ul a i {
+            margin-right: 16px;
+        }
+
+
+        #check {
+            display: none;
+        }
+
+        label #btn {
+            position: absolute;
+            cursor: pointer;
+            background: #ffffff;
+            border-radius: 3px;
+        }
+
+        label #open {
+            position: absolute;
+            cursor: pointer;
+            background: #050C9C;
+            border-radius: 1px;
+            font-size: 30px;
+        }
+
+        label #open {
+            left: 0;
+            top: 10;
+            font-size: 30px;
+            color: rgb(255, 255, 255);
+            padding: 6px 12px;
+            transition: all 0.5s ease;
+        }
+
+        label #btn {
+            z-index: 1111;
+            left: 195px;
+            top: 25px;
+            font-size: 20px;
+            color: #000000;
+            padding: 4px 9px;
+            transition: all 0.5s ease;
+        }
+
+        #check:checked~.sidebar {
+            left: -250px;
+        }
+
+        #check:checked~label #open {
+            left: 30px;
+            font-size: 20px;
+        }
+
+        #check:checked~label #btn {
+            left: -195px;
+        }
+
+        section {
+            background: #ffffff;
+            background-position: center;
+            background-size: cover;
+            height: 100vh;
+            width: 100%;
+        }
+
+        section h1 {
+            text-align: center;
+            padding-top: 200px;
+            font-size: 60px;
+            color: #004369;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: #333;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar .top {
+            padding: 15px;
+            text-align: center;
+            background: #444;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px;
+            text-align: left;
+        }
+
+        .sidebar ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .sidebar ul li:hover {
+            background: #555;
+        }
+
+        main {
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <input type="checkbox" id="check">
+        <label for="check">
+            <i class="fas fa-bars" id="btn"></i>
+            <i class="fa fa-arrow-right" id="open"></i>
+        </label>
+        <div class="sidebar">
+            <div class="top">
+                Absenin
+            </div>
+            <ul>
+                <li><a onclick="showHome()" href="#"> Dashboard</a></li>
+                <li><a onclick="showPresensi()" href="#"> Presence</a></li>
+                <li><a onclick="showHistory()" href="#"> History</a></li>
+                <li><a onclick="logout()" href="#"> Logout</a></li>
+            </ul>
+        </div>
+        <section id="content">
+            <h1>Presensi Mahasiswa</h1>
+            <p>User: <span id="user-nim"></span></p>
+            <table id="presensiTable">
+                <thead>
+                    <tr>
+                        <th>Id Kelas</th>
+                        <th>Mata Kuliah</th>
+                        <th>Dosen</th>
+                        <th>Mulai</th>
+                        <th>Kehadiran</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="kelas-table-body">
+                    <!-- Contoh Data Mahasiswa -->
+                    
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = localStorage.getItem('user');
+            if (!user) {
+                location.replace('/login');
+            } else {
+                document.getElementById('user-nim').textContent = user;
+            }
+        });
+
+        function showHome() {
+            document.getElementById('content').innerHTML = '<h1>Dashboard</h1>';
+        }
+
+        function showHistory() {
+            document.getElementById('content').innerHTML = '<h1>History</h1>';
+            fetch('https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/presensi-nim', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        NIM: localStorage.getItem('user')
+                        
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+
+                        const tableBody = document.getElementById('presensi-table-body');
+                        const presensilist = data.data;
+
+                        presensilist.forEach(presensi => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                            <td>${presensi.id}</td>
+                            <td>${presensi.NIM}</td>
+                            <td>${presensi.Kelas}</td>
+                            <td>${presensi.Dosen}</td>
+                            <td>${presensi.Hadir}</td>
+                            
+                            
+                        `;
+                            tableBody.appendChild(row);
+                        });
+                    } else {
+                        console.error('Gagal mendapatkan data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            document.getElementById('content').innerHTML = `
+            <h1>Presensi Mahasiswa</h1>
+            <table id="presensiTable">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>NIM</th>
+                        <th>Kelas</th>
+                        <th>Dosen</th>
+                        <th>Tanggal/Waktu</th>
+                        
+                    </tr>
+                </thead>
+                <tbody id="presensi-table-body">
+                </tbody>
+            </table>
+            `;
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            location.replace('/login');
+            alert('Logout successful');
+        }
+
+        function getCurrentTime() {
+            const now = new Date();
+            return `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()} WIB`;
+        }
+
+        function tandaiHadir(Id_kelas) {
+            var kehadiranCell = document.getElementById('kehadiran-' + Id_kelas);
+            if (kehadiranCell) {
+                if (kehadiranCell.textContent === 'Tidak Hadir') {
+                    kehadiranCell.textContent = 'Hadir';
+                    kehadiranCell.style.color = 'green';
+                } else {
+                    kehadiranCell.textContent = 'Tidak Hadir';
+                    kehadiranCell.style.color = 'red';
+                }
+
+                const row = kehadiranCell.closest('tr');
+                if (row) {
+                    const nim = localStorage.getItem('user');
+                    const kelas = row.querySelector('td:nth-child(1)').textContent;
+                    const matkul = row.querySelector('td:nth-child(2)').textContent;
+                    const dosen = row.querySelector('td:nth-child(3)').textContent;
+                    const waktu = getCurrentTime();
+
+                    fetch('https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/presensi', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                NIM: nim,
+                                kelas: kelas,
+                                matkul: matkul,
+                                dosen: dosen,
+                                waktu: waktu
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log('Presensi berhasil');
+                            } else {
+                                console.error('Presensi gagal');
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                }
+            }
+        }
+
+        function showPresensi() {
+            fetch('https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/kelas')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+
+                        const tableBody = document.getElementById('kelas-table-body');
+                        const kelasList = data.data;
+
+                        kelasList.forEach(kelas => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                            <td>${kelas.Id_kelas}</td>
+                            <td>${kelas.Matkul}</td>
+                            <td>${kelas.Dosen}</td>
+                            <td>${kelas.Mulai} WIB</td>
+                            <td id="kehadiran-${kelas.Id_kelas}">Tidak Hadir</td>
+                            <td><button onclick="tandaiHadir('${kelas.Id_kelas}')">Hadir</button></td>
+                        `;
+                            tableBody.appendChild(row);
+                        });
+                    } else {
+                        console.error('Gagal mendapatkan data');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            document.getElementById('content').innerHTML = `
+            <h1>Presensi Mahasiswa</h1>
+            <table id="presensiTable">
+                <thead>
+                    <tr>
+                        <th>Id Kelas</th>
+                        <th>Mata Kuliah</th>
+                        <th>Dosen</th>
+                        <th>Mulai</th>
+                        <th>Kehadiran</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="kelas-table-body">
+                </tbody>
+            </table>
+            `;
+        }
+
+        fetch('https://absenin-backend-dot-pertemuan1-415104.et.r.appspot.com/kelas')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const tableBody = document.getElementById('kelas-table-body');
+                    const kelasList = data.data;
+
+                    kelasList.forEach(kelas => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${kelas.Id_kelas}</td>
+                            <td>${kelas.Matkul}</td>
+                            <td>${kelas.Dosen}</td>
+                            <td>${kelas.Mulai} WIB</td>
+                            <td id="kehadiran-${kelas.Id_kelas}">Tidak Hadir</td>
+                            <td><button onclick="tandaiHadir('${kelas.Id_kelas}')">Hadir</button></td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    console.error('Gagal mendapatkan data');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    </script>
+</body>
+
+</html>
