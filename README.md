@@ -1,2 +1,2 @@
 # Absenin
- lebihbaiksendiri
+ entahlah
