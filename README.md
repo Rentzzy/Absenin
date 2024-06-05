@@ -1,0 +1,2 @@
+# Absenin
+ lebihbaiksendiri
